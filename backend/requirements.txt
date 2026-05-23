@@ -1,0 +1,6 @@
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+boto3==1.38.19
+google-genai==1.16.1
+python-dotenv==1.1.0
+pydantic==2.11.3
