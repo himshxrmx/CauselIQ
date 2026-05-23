@@ -1,8 +1,8 @@
-_cffi_backend.cp313-win_amd64.pyd,sha256=1bCdoucmtOkM8O2tXSoOxS82nf0GDhTTgHoysiBQMfo,180224
+_cffi_backend.cpython-312-x86_64-linux-gnu.so,sha256=AGLtw5fn9u4Cmwk3BbGlsXG7VZEvQekABMyEGuRZmcE,348808
 cffi-2.0.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
-cffi-2.0.0.dist-info/METADATA,sha256=ZET6EC-RAp729tW1o4YJl61x9srq0O0A_tZ4N3Mi3uc,2627
+cffi-2.0.0.dist-info/METADATA,sha256=uYzn40F68Im8EtXHNBLZs7FoPM-OxzyYbDWsjJvhujk,2559
 cffi-2.0.0.dist-info/RECORD,,
-cffi-2.0.0.dist-info/WHEEL,sha256=qV0EIPljj1XC_vuSatRWjn02nZIz3N1t8jsZz7HBr2U,101
+cffi-2.0.0.dist-info/WHEEL,sha256=aSgG0F4rGPZtV0iTEIfy6dtHq6g67Lze3uLfk0vWn88,151
 cffi-2.0.0.dist-info/entry_points.txt,sha256=y6jTxnyeuLnL-XJcDv8uML3n6wyYiGRg8MTp_QGJ9Ho,75
 cffi-2.0.0.dist-info/licenses/AUTHORS,sha256=KmemC7-zN1nWfWRf8TG45ta8TK_CMtdR_Kw-2k0xTMg,208
 cffi-2.0.0.dist-info/licenses/LICENSE,sha256=W6JN3FcGf5JJrdZEw6_EGl1tw34jQz73Wdld83Cwr2M,1123

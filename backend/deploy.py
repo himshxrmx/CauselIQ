@@ -22,7 +22,13 @@ print("1. Packaging dependencies...")
 if os.path.exists("package"):
     shutil.rmtree("package")
 os.makedirs("package")
-subprocess.check_call(["pip", "install", "-r", "requirements.txt", "-t", "package/"])
+subprocess.check_call([
+    "pip", "install", "-r", "requirements.txt", 
+    "-t", "package/", 
+    "--platform", "manylinux2014_x86_64", 
+    "--only-binary=:all:", 
+    "--python-version", "3.12"
+])
 
 print("Copying source files...")
 shutil.copy("main.py", "package/")

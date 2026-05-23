@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://kzbxxn5kmovcc3lckuwamdps6u0miody.lambda-url.us-east-1.on.aws/api',
+  baseURL: 'https://h1xgbw2g97.execute-api.us-east-1.amazonaws.com/api',
   timeout: 30000,
 });
 
@@ -80,11 +80,7 @@ export const fetchHealth = () => api.get('/health');
 export const uploadLogs = (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-  return api.post<{ incident_id: string; status: string }>('/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  return api.post<{ incident_id: string; status: string }>('/upload', formData);
 };
 
 export default api;

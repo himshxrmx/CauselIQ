@@ -206,10 +206,10 @@ def receive_alert(payload: AlertPayload, background_tasks: BackgroundTasks):
 
     incidents_db[incident_id] = incident
 
-    # Trigger AI analysis in background
-    background_tasks.add_task(_run_investigation, incident_id)
+    # Run AI analysis synchronously for Lambda
+    _run_investigation(incident_id)
 
-    return {"incident_id": incident_id, "status": "pending", "message": "Investigation started"}
+    return {"incident_id": incident_id, "status": "completed", "message": "Investigation completed"}
 
 
 @app.post("/api/simulate")
@@ -250,9 +250,11 @@ def simulate_incident(req: SimulateRequest, background_tasks: BackgroundTasks):
     }
 
     incidents_db[incident_id] = incident
-    background_tasks.add_task(_run_investigation, incident_id)
+    
+    # Run AI analysis synchronously for Lambda
+    _run_investigation(incident_id)
 
-    return {"incident_id": incident_id, "status": "pending", "scenario": req.scenario, "message": f"Fetched {len(raw_logs)} real CloudWatch logs — AI analysis in progress"}
+    return {"incident_id": incident_id, "status": "completed", "scenario": req.scenario, "message": f"Fetched {len(raw_logs)} logs and completed AI analysis"}
 
 
 @app.post("/api/upload")
@@ -293,9 +295,11 @@ async def upload_logs(background_tasks: BackgroundTasks, file: UploadFile = File
     }
     
     incidents_db[incident_id] = incident
-    background_tasks.add_task(_run_investigation, incident_id)
     
-    return {"incident_id": incident_id, "status": "pending", "message": f"Uploaded {len(lines)} lines of logs — AI analysis in progress"}
+    # Run AI analysis synchronously for Lambda
+    _run_investigation(incident_id)
+    
+    return {"incident_id": incident_id, "status": "completed", "message": f"Uploaded {len(lines)} lines of logs and completed AI analysis"}
 
 
 @app.get("/api/scenarios")
