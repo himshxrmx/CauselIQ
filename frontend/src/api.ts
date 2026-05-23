@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://kzbxxn5kmovcc3lckuwamdps6u0miody.lambda-url.us-east-1.on.aws/api',
   timeout: 30000,
 });
 

@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: CauseIQ AI Incident Analyzer Backend
+
+Parameters:
+  GoogleApiKey:
+    Type: String
+    Description: Your Google Gemini API Key
+
+Resources:
+  CauseIQApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: main.handler
+      Runtime: python3.11
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          GOOGLE_API_KEY: !Ref GoogleApiKey
+      Policies:
+        - CloudWatchLogsReadOnlyAccess
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+        RootEvent:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Description: "API endpoint URL"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
