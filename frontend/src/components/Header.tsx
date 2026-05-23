@@ -1,10 +1,11 @@
-import { Zap, Plus } from 'lucide-react';
+import { Zap, Plus, Upload } from 'lucide-react';
 
 interface HeaderProps {
   onSimulate: () => void;
+  onUpload: () => void;
 }
 
-export default function Header({ onSimulate }: HeaderProps) {
+export default function Header({ onSimulate, onUpload }: HeaderProps) {
   return (
     <header className="border-b border-white/5 bg-dark-900/80 backdrop-blur-xl sticky top-0 z-50">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -27,6 +28,14 @@ export default function Header({ onSimulate }: HeaderProps) {
             <span className="status-dot completed" />
             <span>System Operational</span>
           </div>
+          
+          <button
+            onClick={onUpload}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-dark-800 border border-white/10 text-white/70 text-sm font-medium hover:bg-white/5 hover:text-white transition-all duration-300 cursor-pointer"
+          >
+            <Upload className="w-4 h-4" />
+            <span>Upload Logs</span>
+          </button>
           
           <button
             id="simulate-btn"

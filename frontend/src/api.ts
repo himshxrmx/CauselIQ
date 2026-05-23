@@ -77,4 +77,14 @@ export const fetchStats = () => api.get<Stats>('/stats');
 
 export const fetchHealth = () => api.get('/health');
 
+export const uploadLogs = (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post<{ incident_id: string; status: string }>('/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
 export default api;

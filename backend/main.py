@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -249,6 +249,49 @@ def simulate_incident(req: SimulateRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(_run_investigation, incident_id)
 
     return {"incident_id": incident_id, "status": "pending", "scenario": req.scenario, "message": f"Fetched {len(raw_logs)} real CloudWatch logs — AI analysis in progress"}
+
+
+@app.post("/api/upload")
+async def upload_logs(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+    """Upload a raw log file for AI analysis."""
+    incident_id = str(uuid.uuid4())[:8]
+    
+    content = await file.read()
+    try:
+        text = content.decode('utf-8')
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="File must be a valid UTF-8 text file.")
+        
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    # Limit to 500 lines to prevent overwhelming the AI
+    if len(lines) > 500:
+        lines = lines[-500:]
+
+    raw_logs = [{"timestamp": "N/A", "logStreamName": file.filename, "message": line} for line in lines]
+    
+    alert_data = {
+        "service": file.filename or "uploaded_file",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "alert_type": "custom_upload",
+        "description": "User uploaded log file for AI analysis",
+        "region": "local",
+        "severity": "HIGH",
+    }
+    
+    incident = {
+        "id": incident_id,
+        "alert": alert_data,
+        "raw_logs": raw_logs,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "analysis": None,
+        "error": None,
+    }
+    
+    incidents_db[incident_id] = incident
+    background_tasks.add_task(_run_investigation, incident_id)
+    
+    return {"incident_id": incident_id, "status": "pending", "message": f"Uploaded {len(lines)} lines of logs — AI analysis in progress"}
 
 
 @app.get("/api/scenarios")

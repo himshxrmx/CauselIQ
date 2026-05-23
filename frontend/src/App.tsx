@@ -6,6 +6,7 @@ import StatsBar from './components/StatsBar';
 import AlertFeed from './components/AlertFeed';
 import InvestigationPanel from './components/InvestigationPanel';
 import SimulateModal from './components/SimulateModal';
+import UploadModal from './components/UploadModal';
 
 function App() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -13,6 +14,7 @@ function App() {
   const [scenarios, setScenarios] = useState<Record<string, Scenario>>({});
   const [stats, setStats] = useState<Stats | null>(null);
   const [showSimModal, setShowSimModal] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Fetch incidents list
@@ -98,6 +100,16 @@ function App() {
     }
   };
 
+  const handleUploadSuccess = (incidentId: string) => {
+    setShowUploadModal(false);
+    setTimeout(async () => {
+      await loadIncidents();
+      await loadStats();
+      const detail = await fetchAlert(incidentId);
+      setActiveIncident(detail.data);
+    }, 500);
+  };
+
   return (
     <div className="min-h-screen bg-dark-900 bg-grid">
       {/* Ambient glow effects */}
@@ -108,7 +120,10 @@ function App() {
       </div>
 
       <div className="relative z-10">
-        <Header onSimulate={() => setShowSimModal(true)} />
+        <Header 
+          onSimulate={() => setShowSimModal(true)} 
+          onUpload={() => setShowUploadModal(true)} 
+        />
         
         {stats && <StatsBar stats={stats} />}
 
@@ -137,6 +152,13 @@ function App() {
           loading={loading}
           onSimulate={handleSimulate}
           onClose={() => setShowSimModal(false)}
+        />
+      )}
+
+      {showUploadModal && (
+        <UploadModal
+          onClose={() => setShowUploadModal(false)}
+          onSuccess={handleUploadSuccess}
         />
       )}
     </div>
