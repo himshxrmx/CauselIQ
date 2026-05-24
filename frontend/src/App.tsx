@@ -9,52 +9,47 @@ import SimulateModal from './components/SimulateModal';
 import UploadModal from './components/UploadModal';
 
 function App() {
-  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [incidents, setIncidents] = useState<Incident[]>(() => {
+    try {
+      const saved = localStorage.getItem('causeiq_incidents');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [scenarios, setScenarios] = useState<Record<string, Scenario>>({});
-  const [stats, setStats] = useState<Stats | null>(null);
   const [showSimModal, setShowSimModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Fetch incidents list
-  const loadIncidents = useCallback(async () => {
-    try {
-      const res = await fetchAlerts();
-      setIncidents(res.data);
-    } catch (e) {
-      console.error('Failed to fetch alerts:', e);
-    }
-  }, []);
+  // Persist incidents to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('causeiq_incidents', JSON.stringify(incidents));
+  }, [incidents]);
 
-  // Fetch stats
-  const loadStats = useCallback(async () => {
-    try {
-      const res = await fetchStats();
-      setStats(res.data);
-    } catch (e) {
-      console.error('Failed to fetch stats:', e);
-    }
-  }, []);
+  // Dynamically calculate stats based on local incidents to avoid stateless backend issues
+  const computedStats: Stats = {
+    total_incidents: incidents.length,
+    analyzed: incidents.filter(i => i.status === 'completed' || i.status === 'failed').length,
+    in_progress: incidents.filter(i => i.status === 'pending').length,
+    avg_confidence: (() => {
+      const analyzed = incidents.filter(i => i.status === 'completed' && i.analysis && i.analysis.confidence);
+      if (analyzed.length === 0) return 0;
+      const sum = analyzed.reduce((acc, i) => acc + (i.analysis?.confidence || 0), 0);
+      return Math.round(sum / analyzed.length);
+    })()
+  };
 
   // Load scenarios once
   useEffect(() => {
     fetchScenarios().then(res => setScenarios(res.data)).catch(console.error);
   }, []);
 
-  // Load incidents and stats once on mount
-  useEffect(() => {
-    loadIncidents();
-    loadStats();
-  }, [loadIncidents, loadStats]);
-
   const handleSelectIncident = async (id: string) => {
-    try {
-      const res = await fetchAlert(id);
-      setActiveIncident(res.data);
-    } catch (e) {
-      console.error('Failed to fetch incident:', e);
-    }
+    // Check locally first
+    const local = incidents.find(i => i.id === id);
+    if (local) setActiveIncident(local);
   };
 
   const handleSimulate = async (scenario: string) => {
@@ -63,12 +58,10 @@ function App() {
       const res = await simulateIncident(scenario);
       setShowSimModal(false);
       
-      // Since backend is stateless and returns synchronously, add to state directly
       const newIncident = res.data.incident;
       setIncidents(prev => [newIncident, ...prev.filter(i => i.id !== newIncident.id)]);
       setActiveIncident(newIncident);
       setLoading(false);
-      loadStats();
     } catch (e) {
       console.error('Failed to simulate:', e);
       setLoading(false);
@@ -79,7 +72,6 @@ function App() {
     setShowUploadModal(false);
     setIncidents(prev => [newIncident, ...prev.filter(i => i.id !== newIncident.id)]);
     setActiveIncident(newIncident);
-    loadStats();
   };
 
   return (
@@ -97,7 +89,7 @@ function App() {
           onUpload={() => setShowUploadModal(true)} 
         />
         
-        {stats && <StatsBar stats={stats} />}
+        <StatsBar stats={computedStats} />
 
         <main className="max-w-[1600px] mx-auto px-4 sm:px-6 pb-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
