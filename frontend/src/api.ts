@@ -68,8 +68,8 @@ export const fetchAlerts = () => api.get<Incident[]>('/alerts');
 
 export const fetchAlert = (id: string) => api.get<Incident>(`/alerts/${id}`);
 
-export const simulateIncident = (scenario: string) =>
-  api.post<{ incident_id: string; status: string }>('/simulate', { scenario });
+export const simulateIncident = (scenarioId: string) => 
+  api.post<{ incident: Incident; scenario: string; message: string }>('/simulate', { scenario: scenarioId });
 
 export const fetchScenarios = () => api.get<Record<string, Scenario>>('/scenarios');
 
@@ -80,7 +80,7 @@ export const fetchHealth = () => api.get('/health');
 export const uploadLogs = (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-  return api.post<{ incident_id: string; status: string }>('/upload', formData);
+  return api.post<{ incident: Incident; message: string }>('/upload', formData);
 };
 
 export default api;

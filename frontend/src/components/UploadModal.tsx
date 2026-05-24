@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
 import { X, Upload, FileText, Loader2 } from 'lucide-react';
-import { uploadLogs } from '../api';
+import { uploadLogs, Incident } from '../api';
 
 interface UploadModalProps {
   onClose: () => void;
-  onSuccess: (incidentId: string) => void;
+  onSuccess: (incident: Incident) => void;
 }
 
 export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
@@ -27,7 +27,7 @@ export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
       setIsUploading(true);
       setError(null);
       const res = await uploadLogs(file);
-      onSuccess(res.data.incident_id);
+      onSuccess(res.data.incident);
       onClose();
     } catch (err: any) {
       setError(err.response?.data?.detail || err.message || 'Failed to upload file');

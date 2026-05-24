@@ -209,7 +209,7 @@ def receive_alert(payload: AlertPayload, background_tasks: BackgroundTasks):
     # Run AI analysis synchronously for Lambda
     _run_investigation(incident_id)
 
-    return {"incident_id": incident_id, "status": "completed", "message": "Investigation completed"}
+    return {"incident": incidents_db[incident_id], "message": "Investigation completed"}
 
 
 @app.post("/api/simulate")
@@ -254,7 +254,7 @@ def simulate_incident(req: SimulateRequest, background_tasks: BackgroundTasks):
     # Run AI analysis synchronously for Lambda
     _run_investigation(incident_id)
 
-    return {"incident_id": incident_id, "status": "completed", "scenario": req.scenario, "message": f"Fetched {len(raw_logs)} logs and completed AI analysis"}
+    return {"incident": incidents_db[incident_id], "scenario": req.scenario, "message": f"Fetched {len(raw_logs)} logs and completed AI analysis"}
 
 
 @app.post("/api/upload")
@@ -299,7 +299,7 @@ async def upload_logs(background_tasks: BackgroundTasks, file: UploadFile = File
     # Run AI analysis synchronously for Lambda
     _run_investigation(incident_id)
     
-    return {"incident_id": incident_id, "status": "completed", "message": f"Uploaded {len(lines)} lines of logs and completed AI analysis"}
+    return {"incident": incidents_db[incident_id], "message": f"Uploaded {len(lines)} lines of logs and completed AI analysis"}
 
 
 @app.get("/api/scenarios")

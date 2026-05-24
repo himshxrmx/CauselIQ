@@ -1,0 +1,53 @@
+INIT_START Runtime Version: python:3.12.mainlinev2.v7	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:e4ab553846c4e081013ff7d1d608a5358d5b956bb5b81c83c66d2a31da8f6244
+[WARNING]	2026-05-23T18:42:26.176Z		LAMBDA_WARNING: Unhandled exception. The most likely cause is an issue in the function code. However, in rare cases, a Lambda runtime update can cause unexpected function behavior. For functions using managed runtimes, runtime updates can be triggered by a function change, or can be applied automatically. To determine if the runtime has been updated, check the runtime version in the INIT_START log entry. If this error correlates with a change in the runtime version, you may be able to mitigate this error by temporarily rolling back to the previous runtime version. For more information, see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html
+[ERROR] Runtime.ImportModuleError: Unable to import module 'main': No module named 'pydantic_core._pydantic_core'
+Traceback (most recent call last):
+INIT_REPORT Init Duration: 253.35 ms	Phase: init	Status: error	Error Type: Runtime.ImportModuleError
+[WARNING]	2026-05-23T18:42:26.382Z		LAMBDA_WARNING: Unhandled exception. The most likely cause is an issue in the function code. However, in rare cases, a Lambda runtime update can cause unexpected function behavior. For functions using managed runtimes, runtime updates can be triggered by a function change, or can be applied automatically. To determine if the runtime has been updated, check the runtime version in the INIT_START log entry. If this error correlates with a change in the runtime version, you may be able to mitigate this error by temporarily rolling back to the previous runtime version. For more information, see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html
+[ERROR] Runtime.ImportModuleError: Unable to import module 'main': No module named 'pydantic_core._pydantic_core'
+Traceback (most recent call last):
+INIT_REPORT Init Duration: 192.34 ms	Phase: invoke	Status: error	Error Type: Runtime.ImportModuleError
+START RequestId: e9cad839-9848-40c0-8031-50a23cdba1cb Version: $LATEST
+END RequestId: e9cad839-9848-40c0-8031-50a23cdba1cb
+REPORT RequestId: e9cad839-9848-40c0-8031-50a23cdba1cb	Duration: 205.48 ms	Billed Duration: 206 ms	Memory Size: 512 MB	Max Memory Used: 54 MB	Status: error	Error Type: Runtime.ImportModuleError
+[WARNING]	2026-05-23T18:42:37.188Z		LAMBDA_WARNING: Unhandled exception. The most likely cause is an issue in the function code. However, in rare cases, a Lambda runtime update can cause unexpected function behavior. For functions using managed runtimes, runtime updates can be triggered by a function change, or can be applied automatically. To determine if the runtime has been updated, check the runtime version in the INIT_START log entry. If this error correlates with a change in the runtime version, you may be able to mitigate this error by temporarily rolling back to the previous runtime version. For more information, see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html
+[ERROR] Runtime.ImportModuleError: Unable to import module 'main': No module named 'pydantic_core._pydantic_core'
+Traceback (most recent call last):
+INIT_REPORT Init Duration: 211.10 ms	Phase: invoke	Status: error	Error Type: Runtime.ImportModuleError
+START RequestId: 1d0cc87b-57c2-4f4a-a660-68294d7fb205 Version: $LATEST
+END RequestId: 1d0cc87b-57c2-4f4a-a660-68294d7fb205
+REPORT RequestId: 1d0cc87b-57c2-4f4a-a660-68294d7fb205	Duration: 231.29 ms	Billed Duration: 232 ms	Memory Size: 512 MB	Max Memory Used: 54 MB	Status: error	Error Type: Runtime.ImportModuleError
+INIT_START Runtime Version: python:3.12.mainlinev2.v7	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:e4ab553846c4e081013ff7d1d608a5358d5b956bb5b81c83c66d2a31da8f6244
+START RequestId: ea98d74d-37ca-4aff-95f9-34fc42d80645 Version: $LATEST
+END RequestId: ea98d74d-37ca-4aff-95f9-34fc42d80645
+REPORT RequestId: ea98d74d-37ca-4aff-95f9-34fc42d80645	Duration: 105.72 ms	Billed Duration: 2847 ms	Memory Size: 512 MB	Max Memory Used: 144 MB	Init Duration: 2741.21 ms
+INIT_START Runtime Version: python:3.12.mainlinev2.v7	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:e4ab553846c4e081013ff7d1d608a5358d5b956bb5b81c83c66d2a31da8f6244
+INIT_START Runtime Version: python:3.12.mainlinev2.v7	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:e4ab553846c4e081013ff7d1d608a5358d5b956bb5b81c83c66d2a31da8f6244
+INIT_START Runtime Version: python:3.12.mainlinev2.v7	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:e4ab553846c4e081013ff7d1d608a5358d5b956bb5b81c83c66d2a31da8f6244
+INIT_START Runtime Version: python:3.12.mainlinev2.v7	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:e4ab553846c4e081013ff7d1d608a5358d5b956bb5b81c83c66d2a31da8f6244
+INIT_START Runtime Version: python:3.12.mainlinev2.v7	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:e4ab553846c4e081013ff7d1d608a5358d5b956bb5b81c83c66d2a31da8f6244
+INIT_START Runtime Version: python:3.12.mainlinev2.v7	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:e4ab553846c4e081013ff7d1d608a5358d5b956bb5b81c83c66d2a31da8f6244
+START RequestId: 28378c97-5104-4f9c-b5b0-c7801cc0b5b1 Version: $LATEST
+START RequestId: 0e2b1e26-5d43-4b70-9dcf-61e416c61834 Version: $LATEST
+END RequestId: 28378c97-5104-4f9c-b5b0-c7801cc0b5b1
+REPORT RequestId: 28378c97-5104-4f9c-b5b0-c7801cc0b5b1	Duration: 98.49 ms	Billed Duration: 2850 ms	Memory Size: 512 MB	Max Memory Used: 144 MB	Init Duration: 2750.97 ms
+START RequestId: 1880b60d-352d-44dc-801c-c6c7f90ba811 Version: $LATEST
+END RequestId: 0e2b1e26-5d43-4b70-9dcf-61e416c61834
+REPORT RequestId: 0e2b1e26-5d43-4b70-9dcf-61e416c61834	Duration: 103.63 ms	Billed Duration: 2937 ms	Memory Size: 512 MB	Max Memory Used: 144 MB	Init Duration: 2833.19 ms
+END RequestId: 1880b60d-352d-44dc-801c-c6c7f90ba811
+REPORT RequestId: 1880b60d-352d-44dc-801c-c6c7f90ba811	Duration: 114.78 ms	Billed Duration: 3030 ms	Memory Size: 512 MB	Max Memory Used: 144 MB	Init Duration: 2914.69 ms
+START RequestId: cc8b54cf-fd9a-4fb5-9326-8e5d74b0a904 Version: $LATEST
+END RequestId: cc8b54cf-fd9a-4fb5-9326-8e5d74b0a904
+REPORT RequestId: cc8b54cf-fd9a-4fb5-9326-8e5d74b0a904	Duration: 3.48 ms	Billed Duration: 4 ms	Memory Size: 512 MB	Max Memory Used: 144 MB
+START RequestId: 27a65adf-2529-4a95-803e-f4efbc6f12c4 Version: $LATEST
+END RequestId: 27a65adf-2529-4a95-803e-f4efbc6f12c4
+REPORT RequestId: 27a65adf-2529-4a95-803e-f4efbc6f12c4	Duration: 3.09 ms	Billed Duration: 4 ms	Memory Size: 512 MB	Max Memory Used: 144 MB
+START RequestId: 9f53e08d-9529-4d95-b072-d6e67a6b040e Version: $LATEST
+END RequestId: 9f53e08d-9529-4d95-b072-d6e67a6b040e
+REPORT RequestId: 9f53e08d-9529-4d95-b072-d6e67a6b040e	Duration: 104.48 ms	Billed Duration: 2566 ms	Memory Size: 512 MB	Max Memory Used: 144 MB	Init Duration: 2461.23 ms
+START RequestId: c95946f5-0b29-4538-ad90-f60594f5ee67 Version: $LATEST
+END RequestId: c95946f5-0b29-4538-ad90-f60594f5ee67
+REPORT RequestId: c95946f5-0b29-4538-ad90-f60594f5ee67	Duration: 94.85 ms	Billed Duration: 2771 ms	Memory Size: 512 MB	Max Memory Used: 143 MB	Init Duration: 2675.76 ms
+START RequestId: 6ec04d9e-7586-4047-b64c-6648c3f3a6bf Version: $LATEST
+END RequestId: 6ec04d9e-7586-4047-b64c-6648c3f3a6bf
+REPORT RequestId: 6ec04d9e-7586-4047-b64c-6648c3f3a6bf	Duration: 4.01 ms	Billed Duration: 5 ms	Memory Size: 512 MB	Max Memory Used: 143 MB

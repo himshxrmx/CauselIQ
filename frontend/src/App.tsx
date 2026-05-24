@@ -42,35 +42,11 @@ function App() {
     fetchScenarios().then(res => setScenarios(res.data)).catch(console.error);
   }, []);
 
-  // Poll incidents every 3s
+  // Load incidents and stats once on mount
   useEffect(() => {
     loadIncidents();
     loadStats();
-    const interval = setInterval(() => {
-      loadIncidents();
-      loadStats();
-    }, 3000);
-    return () => clearInterval(interval);
   }, [loadIncidents, loadStats]);
-
-  // When active incident is analyzing, poll for completion
-  useEffect(() => {
-    if (!activeIncident || activeIncident.status === 'completed' || activeIncident.status === 'failed') return;
-    
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetchAlert(activeIncident.id);
-        setActiveIncident(res.data);
-        if (res.data.status === 'completed' || res.data.status === 'failed') {
-          loadIncidents();
-          loadStats();
-        }
-      } catch (e) {
-        console.error('Failed to poll incident:', e);
-      }
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [activeIncident, loadIncidents, loadStats]);
 
   const handleSelectIncident = async (id: string) => {
     try {
@@ -86,28 +62,24 @@ function App() {
     try {
       const res = await simulateIncident(scenario);
       setShowSimModal(false);
-      // Immediately fetch the new incident
-      setTimeout(async () => {
-        await loadIncidents();
-        await loadStats();
-        const detail = await fetchAlert(res.data.incident_id);
-        setActiveIncident(detail.data);
-        setLoading(false);
-      }, 500);
+      
+      // Since backend is stateless and returns synchronously, add to state directly
+      const newIncident = res.data.incident;
+      setIncidents(prev => [newIncident, ...prev.filter(i => i.id !== newIncident.id)]);
+      setActiveIncident(newIncident);
+      setLoading(false);
+      loadStats();
     } catch (e) {
       console.error('Failed to simulate:', e);
       setLoading(false);
     }
   };
 
-  const handleUploadSuccess = (incidentId: string) => {
+  const handleUploadSuccess = (newIncident: Incident) => {
     setShowUploadModal(false);
-    setTimeout(async () => {
-      await loadIncidents();
-      await loadStats();
-      const detail = await fetchAlert(incidentId);
-      setActiveIncident(detail.data);
-    }, 500);
+    setIncidents(prev => [newIncident, ...prev.filter(i => i.id !== newIncident.id)]);
+    setActiveIncident(newIncident);
+    loadStats();
   };
 
   return (
