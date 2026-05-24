@@ -31,13 +31,16 @@ function App() {
   // Dynamically calculate stats based on local incidents to avoid stateless backend issues
   const computedStats: Stats = {
     total_incidents: incidents.length,
-    analyzed: incidents.filter(i => i.status === 'completed' || i.status === 'failed').length,
-    in_progress: incidents.filter(i => i.status === 'pending').length,
+    completed: incidents.filter(i => i.status === 'completed').length,
+    analyzing: incidents.filter(i => i.status === 'pending' || i.status === 'analyzing').length,
+    failed: incidents.filter(i => i.status === 'failed').length,
+    severity_breakdown: {},
+    category_breakdown: {},
     avg_confidence: (() => {
-      const analyzed = incidents.filter(i => i.status === 'completed' && i.analysis && i.analysis.confidence);
+      const analyzed = incidents.filter(i => i.status === 'completed' && i.analysis && i.analysis.confidence_score);
       if (analyzed.length === 0) return 0;
-      const sum = analyzed.reduce((acc, i) => acc + (i.analysis?.confidence || 0), 0);
-      return Math.round(sum / analyzed.length);
+      const sum = analyzed.reduce((acc, i) => acc + (i.analysis?.confidence_score || 0), 0);
+      return sum / analyzed.length;
     })()
   };
 
