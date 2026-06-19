@@ -12,6 +12,12 @@ import {
   Target,
   Copy,
   Check,
+  Cpu,
+  Code,
+  GitBranch,
+  Zap,
+  Search,
+  Layers,
 } from 'lucide-react';
 import type { Incident } from '../api';
 
@@ -22,12 +28,21 @@ interface InvestigationPanelProps {
 export default function InvestigationPanel({ incident }: InvestigationPanelProps) {
   const [logsOpen, setLogsOpen] = useState(false);
   const [timelineOpen, setTimelineOpen] = useState(true);
+  const [agentDetailsOpen, setAgentDetailsOpen] = useState(true);
+  const [hotfixOpen, setHotfixOpen] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [copiedDiff, setCopiedDiff] = useState(false);
 
   const copyCommand = (cmd: string, idx: number) => {
     navigator.clipboard.writeText(cmd);
     setCopiedIdx(idx);
     setTimeout(() => setCopiedIdx(null), 2000);
+  };
+
+  const copyDiff = (diff: string) => {
+    navigator.clipboard.writeText(diff);
+    setCopiedDiff(true);
+    setTimeout(() => setCopiedDiff(false), 2000);
   };
 
   if (!incident) {
@@ -47,6 +62,7 @@ export default function InvestigationPanel({ incident }: InvestigationPanelProps
   }
 
   const { alert, analysis, status, raw_logs } = incident;
+  const phases = analysis?.agent_phases;
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -77,6 +93,67 @@ export default function InvestigationPanel({ incident }: InvestigationPanelProps
         </div>
       </div>
 
+      {/* ─── Multi-Agent Pipeline Indicator ─── */}
+      {(status === 'completed' || status === 'analyzing' || status === 'pending') && (
+        <div className="glass-card p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Layers className="w-4 h-4 text-accent-purple" />
+            <span className="text-xs font-semibold text-accent-purple uppercase tracking-wider">
+              Multi-Agent Pipeline
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            {/* Agent 1 */}
+            <div className="flex-1 flex flex-col items-center text-center">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 transition-all ${
+                status === 'completed' ? 'bg-accent-green/15 ring-1 ring-accent-green/30' :
+                status === 'analyzing' ? 'bg-accent-cyan/15 ring-1 ring-accent-cyan/30 animate-pulse' :
+                'bg-white/5 ring-1 ring-white/10'
+              }`}>
+                <Search className={`w-5 h-5 ${
+                  status === 'completed' ? 'text-accent-green' :
+                  status === 'analyzing' ? 'text-accent-cyan' : 'text-white/30'
+                }`} />
+              </div>
+              <span className="text-[10px] text-white/50 font-medium">Log Triage</span>
+              <span className="text-[9px] text-white/25">Agent 1</span>
+            </div>
+
+            <div className={`flex-shrink-0 w-8 h-px ${status === 'completed' ? 'bg-accent-green/40' : 'bg-white/10'}`} />
+
+            {/* Agent 2 */}
+            <div className="flex-1 flex flex-col items-center text-center">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 transition-all ${
+                status === 'completed' && phases?.code_analyst ? 'bg-accent-green/15 ring-1 ring-accent-green/30' :
+                'bg-white/5 ring-1 ring-white/10'
+              }`}>
+                <Code className={`w-5 h-5 ${
+                  status === 'completed' && phases?.code_analyst ? 'text-accent-green' : 'text-white/30'
+                }`} />
+              </div>
+              <span className="text-[10px] text-white/50 font-medium">Code Analysis</span>
+              <span className="text-[9px] text-white/25">Agent 2</span>
+            </div>
+
+            <div className={`flex-shrink-0 w-8 h-px ${status === 'completed' ? 'bg-accent-green/40' : 'bg-white/10'}`} />
+
+            {/* Agent 3 */}
+            <div className="flex-1 flex flex-col items-center text-center">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 transition-all ${
+                status === 'completed' ? 'bg-accent-green/15 ring-1 ring-accent-green/30' :
+                'bg-white/5 ring-1 ring-white/10'
+              }`}>
+                <Zap className={`w-5 h-5 ${
+                  status === 'completed' ? 'text-accent-green' : 'text-white/30'
+                }`} />
+              </div>
+              <span className="text-[10px] text-white/50 font-medium">Synthesis</span>
+              <span className="text-[9px] text-white/25">Agent 3</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── Loading State ─── */}
       {(status === 'pending' || status === 'analyzing') && (
         <div className="glass-card p-8 text-center glow-purple">
@@ -86,10 +163,10 @@ export default function InvestigationPanel({ incident }: InvestigationPanelProps
             <div className="w-3 h-3 rounded-full bg-accent-pink animate-pulse-glow [animation-delay:400ms]" />
           </div>
           <h3 className="text-lg font-semibold text-white mb-1">
-            AI is Analyzing the Incident
+            Multi-Agent Pipeline Running
           </h3>
           <p className="text-sm text-white/40">
-            Gemini is processing {raw_logs?.length || 0} log events...
+            3 AI agents are analyzing {raw_logs?.length || 0} log events...
           </p>
           <div className="mt-4 max-w-xs mx-auto">
             <div className="shimmer h-2 rounded-full" />
@@ -123,7 +200,6 @@ export default function InvestigationPanel({ incident }: InvestigationPanelProps
               {analysis.probable_cause}
             </p>
             <div className="flex flex-wrap items-center gap-4 mt-4">
-              {/* Confidence */}
               <div className="flex-1 min-w-[180px]">
                 <div className="flex items-center justify-between text-xs mb-1">
                   <span className="text-white/40">Confidence</span>
@@ -147,7 +223,6 @@ export default function InvestigationPanel({ incident }: InvestigationPanelProps
                   />
                 </div>
               </div>
-              {/* Category */}
               <div className="flex items-center gap-2">
                 <Target className="w-4 h-4 text-accent-purple" />
                 <span className="text-xs font-medium text-accent-purple uppercase tracking-wider">
@@ -156,6 +231,174 @@ export default function InvestigationPanel({ incident }: InvestigationPanelProps
               </div>
             </div>
           </div>
+
+          {/* ─── Agent Pipeline Details ─── */}
+          {phases && (
+            <div className="glass-card p-5">
+              <button
+                onClick={() => setAgentDetailsOpen(!agentDetailsOpen)}
+                className="flex items-center justify-between w-full cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Cpu className="w-5 h-5 text-accent-cyan" />
+                  <h3 className="text-sm font-semibold text-accent-cyan uppercase tracking-wider">
+                    Agent Pipeline Details
+                  </h3>
+                </div>
+                {agentDetailsOpen ? (
+                  <ChevronUp className="w-4 h-4 text-white/30" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-white/30" />
+                )}
+              </button>
+
+              {agentDetailsOpen && (
+                <div className="mt-4 space-y-3">
+                  {/* Agent 1 */}
+                  <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Search className="w-4 h-4 text-accent-cyan" />
+                      <span className="text-xs font-semibold text-accent-cyan">Phase 1 — Log Diagnostician</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        phases.log_diagnostician.status === 'WRONG'
+                          ? 'bg-accent-red/15 text-accent-red'
+                          : 'bg-accent-green/15 text-accent-green'
+                      }`}>
+                        {phases.log_diagnostician.status}
+                      </span>
+                      <span className="text-[10px] text-white/30 ml-auto">
+                        {Math.round(phases.log_diagnostician.confidence_score * 100)}% confidence
+                      </span>
+                    </div>
+                    <p className="text-sm text-white/60 mb-2">{phases.log_diagnostician.diagnostic_summary}</p>
+                    {phases.log_diagnostician.status === 'WRONG' && phases.log_diagnostician.extracted_context && (
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <div className="rounded-lg bg-white/[0.03] p-2">
+                          <span className="text-[10px] text-white/30 uppercase">Error Type</span>
+                          <p className="text-xs text-accent-red font-mono mt-0.5">{phases.log_diagnostician.extracted_context.error_type}</p>
+                        </div>
+                        <div className="rounded-lg bg-white/[0.03] p-2">
+                          <span className="text-[10px] text-white/30 uppercase">File</span>
+                          <p className="text-xs text-white/60 font-mono mt-0.5 truncate">{phases.log_diagnostician.extracted_context.filepath}</p>
+                        </div>
+                        {phases.log_diagnostician.extracted_context.line_number > 0 && (
+                          <div className="rounded-lg bg-white/[0.03] p-2">
+                            <span className="text-[10px] text-white/30 uppercase">Line</span>
+                            <p className="text-xs text-accent-amber font-mono mt-0.5">:{phases.log_diagnostician.extracted_context.line_number}</p>
+                          </div>
+                        )}
+                        {phases.log_diagnostician.extracted_context.variables.length > 0 && (
+                          <div className="rounded-lg bg-white/[0.03] p-2">
+                            <span className="text-[10px] text-white/30 uppercase">Variables</span>
+                            <div className="flex flex-wrap gap-1 mt-0.5">
+                              {phases.log_diagnostician.extracted_context.variables.map((v, i) => (
+                                <span key={i} className="text-[10px] font-mono bg-accent-purple/10 text-accent-purple px-1.5 py-0.5 rounded">{v}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {phases.log_diagnostician.extracted_context?.error_patterns?.length > 0 && (
+                      <div className="mt-2">
+                        <span className="text-[10px] text-white/30 uppercase">Error Patterns Detected</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {phases.log_diagnostician.extracted_context.error_patterns.map((p, i) => (
+                            <span key={i} className="text-[10px] bg-accent-red/10 text-accent-red/80 px-2 py-0.5 rounded-full">{p}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Agent 2 */}
+                  {phases.code_analyst && (
+                    <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Code className="w-4 h-4 text-accent-amber" />
+                        <span className="text-xs font-semibold text-accent-amber">Phase 2 — Code & Config Analyst</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-[10px] text-white/30 uppercase">Root Cause</span>
+                          <p className="text-sm text-white/70 mt-0.5">{phases.code_analyst.root_cause}</p>
+                        </div>
+                        {phases.code_analyst.code_analysis && (
+                          <div>
+                            <span className="text-[10px] text-white/30 uppercase">Code Analysis</span>
+                            <p className="text-xs text-white/50 mt-0.5">{phases.code_analyst.code_analysis}</p>
+                          </div>
+                        )}
+                        {phases.code_analyst.config_analysis && (
+                          <div>
+                            <span className="text-[10px] text-white/30 uppercase">Config Analysis</span>
+                            <p className="text-xs text-white/50 mt-0.5">{phases.code_analyst.config_analysis}</p>
+                          </div>
+                        )}
+                        {phases.code_analyst.suggested_fix && (
+                          <div>
+                            <span className="text-[10px] text-white/30 uppercase">Suggested Fix</span>
+                            <div className="code-block mt-1">
+                              <code className="text-xs">{phases.code_analyst.suggested_fix}</code>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ─── Hotfix Diff ─── */}
+          {analysis.hotfix_diff && analysis.hotfix_diff.trim() && (
+            <div className="glass-card p-5">
+              <button
+                onClick={() => setHotfixOpen(!hotfixOpen)}
+                className="flex items-center justify-between w-full cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <GitBranch className="w-5 h-5 text-accent-green" />
+                  <h3 className="text-sm font-semibold text-accent-green uppercase tracking-wider">
+                    Suggested Hotfix Diff
+                  </h3>
+                </div>
+                {hotfixOpen ? (
+                  <ChevronUp className="w-4 h-4 text-white/30" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-white/30" />
+                )}
+              </button>
+              {hotfixOpen && (
+                <div className="mt-3 relative group">
+                  <pre className="code-block text-xs overflow-x-auto whitespace-pre-wrap">
+                    {analysis.hotfix_diff.split('\n').map((line, i) => (
+                      <div key={i} className={
+                        line.startsWith('+') ? 'text-accent-green' :
+                        line.startsWith('-') ? 'text-accent-red' :
+                        line.startsWith('@@') ? 'text-accent-purple' :
+                        'text-white/50'
+                      }>
+                        {line}
+                      </div>
+                    ))}
+                  </pre>
+                  <button
+                    onClick={() => copyDiff(analysis.hotfix_diff!)}
+                    className="absolute top-2 right-2 p-1.5 rounded-md bg-white/5 hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                    title="Copy diff"
+                  >
+                    {copiedDiff ? (
+                      <Check className="w-3.5 h-3.5 text-accent-green" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5 text-white/40" />
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Impact Analysis */}
           <div className="glass-card p-5">

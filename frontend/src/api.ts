@@ -26,6 +26,33 @@ export interface TimelineEvent {
   event: string;
 }
 
+export interface ExtractedContext {
+  error_type: string;
+  filepath: string;
+  line_number: number;
+  variables: string[];
+  error_patterns: string[];
+}
+
+export interface LogDiagnostician {
+  status: 'CORRECT' | 'WRONG';
+  confidence_score: number;
+  diagnostic_summary: string;
+  extracted_context: ExtractedContext;
+}
+
+export interface CodeAnalyst {
+  root_cause: string;
+  code_analysis: string;
+  config_analysis: string;
+  suggested_fix: string;
+}
+
+export interface AgentPhases {
+  log_diagnostician: LogDiagnostician;
+  code_analyst: CodeAnalyst | null;
+}
+
 export interface Analysis {
   probable_cause: string;
   confidence_score: number;
@@ -34,6 +61,8 @@ export interface Analysis {
   actionable_remediation: RemediationStep[];
   root_cause_category: string;
   timeline: TimelineEvent[];
+  agent_phases?: AgentPhases;
+  hotfix_diff?: string;
 }
 
 export interface Incident {
