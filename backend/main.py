@@ -4,12 +4,15 @@ Main application with CORS, routes, and in-memory incident store.
 """
 
 import uuid
+import os
+import asyncio
 from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from routellm.controller import Controller
 
 from aws_client import fetch_cloudwatch_logs, build_time_window, list_log_groups
 from ai_analyzer import analyze_incident
@@ -32,6 +35,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ─── RouteLLM Dual-Engine Setup ─────────────────────────────
+os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY", "gsk_pe1Q5sXAY_MASKED")
+
+try:
+    route_client = Controller(
+        routers=["mf"],
+        strong_model="gemini/gemini-2.5-pro",
+        weak_model="groq/llama3-8b-8192"
+    )
+except Exception as e:
+    print(f"Warning: RouteLLM Controller failed to initialize: {e}")
+    route_client = None
+
+# Mock Connectors (Replace with Boto3 and Git integrations)
+async def fetch_aws_logs_mock(trace_id: str):
+    await asyncio.sleep(0.2) # Simulate network latency
+    return "TypeError: undefined property 'split' at data_parser.py:42"
+
+async def fetch_git_code_mock(file_path: str, line_num: int):
+    await asyncio.sleep(0.2) 
+    return "39: def parse(data):\n40:     # No null check here\n41:     return data.split(',')"
 
 # ─── In-Memory Store ──────────────────────────────────────
 incidents_db: dict[str, dict] = {}
@@ -140,6 +165,42 @@ def _run_investigation(incident_id: str):
 
 
 # ─── Routes ──────────────────────────────────────────────
+
+@app.post("/webhook/cloudwatch-alert")
+async def handle_incident_webhook(payload: dict):
+    """The High-Speed Webhook Endpoint using RouteLLM adaptive routing."""
+    if not route_client:
+        raise HTTPException(status_code=500, detail="RouteLLM not initialized")
+        
+    trace_id = payload.get("trace_id", "unknown")
+    
+    # Execute the log fetch and code fetch simultaneously
+    logs_task = fetch_aws_logs_mock(trace_id)
+    code_task = fetch_git_code_mock("data_parser.py", 42)
+    
+    raw_logs, source_code = await asyncio.gather(logs_task, code_task)
+    
+    # Build the Synthesis Prompt
+    synthesis_prompt = f"""
+    You are the CauseIQ Agent.
+    AWS CLOUDWATCH LOG: {raw_logs}
+    SOURCE CODE WINDOW: {source_code}
+    
+    Identify the exact bug and output the required code fix.
+    Output a strict JSON schema containing {{"is_anomaly": true, "root_cause": "...", "remediation_steps": "..."}}.
+    """
+    
+    # RouteLLM automatically calculates complexity. 
+    # The '0.11593' threshold sends simple bugs to Groq and hard bugs to Gemini.
+    response = route_client.chat.completions.create(
+        model="router-mf-0.11593",
+        messages=[{"role": "user", "content": synthesis_prompt}]
+    )
+    
+    return {
+        "status": "success", 
+        "resolution": response.choices[0].message.content
+    }
 
 @app.get("/")
 def root():
