@@ -106,9 +106,12 @@ export const fetchStats = () => api.get<Stats>('/stats');
 
 export const fetchHealth = () => api.get('/health');
 
-export const uploadLogs = (file: File) => {
+export const uploadLogs = (file: File, codeFile?: File) => {
   const formData = new FormData();
   formData.append('file', file);
+  if (codeFile) {
+    formData.append('code_file', codeFile);
+  }
   return api.post<{ incident: Incident; message: string }>('/upload', formData);
 };
 

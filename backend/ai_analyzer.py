@@ -183,10 +183,14 @@ AGENT_2_SCHEMA = types.Schema(
 )
 
 
-def agent_2_code_analyst(agent_1_output: dict, alert_data: dict, raw_logs: list[dict]) -> dict:
+def agent_2_code_analyst(agent_1_output: dict, alert_data: dict, raw_logs: list[dict], source_code: str | None = None) -> dict:
     """Phase 2: Deep code/config analysis using Agent 1's findings."""
     log_text = _format_logs(raw_logs)
     ctx = agent_1_output.get("extracted_context", {})
+
+    source_code_section = ""
+    if source_code:
+        source_code_section = f"""\n## UPLOADED SOURCE CODE\n```\n{source_code[:10000]}\n```\n"""
 
     prompt = f"""## AGENT 1 DIAGNOSTIC FINDINGS
 - **System Status:** {agent_1_output.get('status', 'UNKNOWN')}
@@ -203,7 +207,7 @@ def agent_2_code_analyst(agent_1_output: dict, alert_data: dict, raw_logs: list[
 - **Alert Type:** {alert_data.get('alert_type', 'unknown')}
 - **Description:** {alert_data.get('description', 'N/A')}
 - **Region:** {alert_data.get('region', 'us-east-1')}
-- **Severity:** {alert_data.get('severity', 'UNKNOWN')}
+- **Severity:** {alert_data.get('severity', 'UNKNOWN')}{source_code_section}
 
 ## RAW LOGS (for reference, {len(raw_logs)} events)
 ```
@@ -352,7 +356,7 @@ Synthesize the findings from both agents into a definitive incident report. Your
 # ORCHESTRATOR — Multi-Agent Pipeline
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def run_multi_agent_pipeline(alert_payload: dict, raw_logs: list[dict]) -> dict:
+def run_multi_agent_pipeline(alert_payload: dict, raw_logs: list[dict], source_code: str | None = None) -> dict:
     """
     Execute the full 3-phase multi-agent RCA pipeline.
 
@@ -385,7 +389,7 @@ def run_multi_agent_pipeline(alert_payload: dict, raw_logs: list[dict]) -> dict:
         }
 
     # ── Phase 2: Code & Config Analyst ──
-    agent_2_result = agent_2_code_analyst(agent_1_result, alert_payload, raw_logs)
+    agent_2_result = agent_2_code_analyst(agent_1_result, alert_payload, raw_logs, source_code=source_code)
 
     # ── Phase 3: Synthesizer ──
     final_report = agent_3_synthesizer(agent_1_result, agent_2_result, alert_payload)
@@ -406,6 +410,6 @@ def run_multi_agent_pipeline(alert_payload: dict, raw_logs: list[dict]) -> dict:
 
 
 # Keep backward-compatible function name
-def analyze_incident(alert_payload: dict, raw_logs: list[dict]) -> dict:
+def analyze_incident(alert_payload: dict, raw_logs: list[dict], source_code: str | None = None) -> dict:
     """Backward-compatible wrapper that runs the full multi-agent pipeline."""
-    return run_multi_agent_pipeline(alert_payload, raw_logs)
+    return run_multi_agent_pipeline(alert_payload, raw_logs, source_code=source_code)

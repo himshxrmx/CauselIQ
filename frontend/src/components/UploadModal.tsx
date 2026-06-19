@@ -9,14 +9,22 @@ interface UploadModalProps {
 
 export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
   const [file, setFile] = useState<File | null>(null);
+  const [codeFile, setCodeFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const codeFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
       setError(null);
+    }
+  };
+
+  const handleCodeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCodeFile(e.target.files[0]);
     }
   };
 
@@ -26,7 +34,7 @@ export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
     try {
       setIsUploading(true);
       setError(null);
-      const res = await uploadLogs(file);
+      const res = await uploadLogs(file, codeFile || undefined);
       onSuccess(res.data.incident);
       onClose();
     } catch (err: any) {
@@ -44,8 +52,8 @@ export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
       >
         <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
           <div>
-            <h2 className="text-lg font-semibold text-white">Upload Log File</h2>
-            <p className="text-xs text-white/40 mt-1">Upload raw logs (.txt, .log) for AI analysis</p>
+            <h2 className="text-lg font-semibold text-white">Upload Incident Data</h2>
+            <p className="text-xs text-white/40 mt-1">Upload logs and optional source code</p>
           </div>
           <button 
             onClick={onClose}
@@ -55,9 +63,10 @@ export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 space-y-4">
+          {/* Logs Upload */}
           <div 
-            className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
+            className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer ${
               file ? 'border-accent-cyan/30 bg-accent-cyan/5' : 'border-white/10 hover:border-white/30 hover:bg-white/5'
             }`}
             onClick={() => fileInputRef.current?.click()}
@@ -72,26 +81,56 @@ export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
             
             {file ? (
               <div className="flex flex-col items-center">
-                <FileText className="w-10 h-10 text-accent-cyan mb-3" />
+                <FileText className="w-8 h-8 text-accent-cyan mb-2" />
                 <p className="text-sm font-medium text-white">{file.name}</p>
                 <p className="text-xs text-white/40 mt-1">{(file.size / 1024).toFixed(1)} KB</p>
               </div>
             ) : (
               <div className="flex flex-col items-center">
-                <Upload className="w-10 h-10 text-white/20 mb-3" />
-                <p className="text-sm font-medium text-white/70">Click to browse or drag and drop</p>
-                <p className="text-xs text-white/40 mt-1">Plain text log files (max 5MB)</p>
+                <Upload className="w-8 h-8 text-white/20 mb-2" />
+                <p className="text-sm font-medium text-white/70">1. Upload Logs (Required)</p>
+                <p className="text-xs text-white/40 mt-1">.txt or .log files</p>
+              </div>
+            )}
+          </div>
+
+          {/* Source Code Upload */}
+          <div 
+            className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer ${
+              codeFile ? 'border-accent-purple/30 bg-accent-purple/5' : 'border-white/10 hover:border-white/30 hover:bg-white/5'
+            }`}
+            onClick={() => codeFileInputRef.current?.click()}
+          >
+            <input 
+              type="file" 
+              ref={codeFileInputRef} 
+              onChange={handleCodeFileChange} 
+              className="hidden" 
+              accept=".js,.ts,.py,.go,.java,.tsx,.jsx,.cs,.rb,.php,.txt" 
+            />
+            
+            {codeFile ? (
+              <div className="flex flex-col items-center">
+                <FileText className="w-8 h-8 text-accent-purple mb-2" />
+                <p className="text-sm font-medium text-white">{codeFile.name}</p>
+                <p className="text-xs text-white/40 mt-1">{(codeFile.size / 1024).toFixed(1)} KB</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <Upload className="w-8 h-8 text-white/20 mb-2" />
+                <p className="text-sm font-medium text-white/70">2. Upload Source Code (Optional)</p>
+                <p className="text-xs text-white/40 mt-1">Give Agent 2 real code context</p>
               </div>
             )}
           </div>
 
           {error && (
-            <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
               {error}
             </div>
           )}
 
-          <div className="mt-6 flex justify-end gap-3">
+          <div className="flex justify-end gap-3 pt-2">
             <button
               onClick={onClose}
               className="px-4 py-2 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"

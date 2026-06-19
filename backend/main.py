@@ -127,9 +127,10 @@ def _run_investigation(incident_id: str):
 
     alert_data = incident["alert"]
     logs = incident.get("raw_logs", [])
+    source_code = incident.get("source_code")
 
     try:
-        analysis = analyze_incident(alert_data, logs)
+        analysis = analyze_incident(alert_data, logs, source_code=source_code)
         incidents_db[incident_id]["analysis"] = analysis
         incidents_db[incident_id]["status"] = "completed"
         incidents_db[incident_id]["completed_at"] = datetime.now(timezone.utc).isoformat()
@@ -258,8 +259,8 @@ def simulate_incident(req: SimulateRequest, background_tasks: BackgroundTasks):
 
 
 @app.post("/api/upload")
-async def upload_logs(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
-    """Upload a raw log file for AI analysis."""
+async def upload_logs(background_tasks: BackgroundTasks, file: UploadFile = File(...), code_file: UploadFile = File(None)):
+    """Upload a raw log file and optional source code for AI analysis."""
     incident_id = str(uuid.uuid4())[:8]
     
     content = await file.read()
@@ -284,10 +285,22 @@ async def upload_logs(background_tasks: BackgroundTasks, file: UploadFile = File
         "severity": "HIGH",
     }
     
+    source_code = None
+    if code_file:
+        code_content = await code_file.read()
+        try:
+            source_code = code_content.decode('utf-8')
+            # Limit source code length to prevent overwhelming the AI
+            if len(source_code) > 20000:
+                source_code = source_code[:20000] + "\n...[TRUNCATED]"
+        except UnicodeDecodeError:
+            pass  # If code isn't UTF-8, just ignore it
+            
     incident = {
         "id": incident_id,
         "alert": alert_data,
         "raw_logs": raw_logs,
+        "source_code": source_code,
         "status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "analysis": None,
@@ -299,7 +312,12 @@ async def upload_logs(background_tasks: BackgroundTasks, file: UploadFile = File
     # Run AI analysis synchronously for Lambda
     _run_investigation(incident_id)
     
-    return {"incident": incidents_db[incident_id], "message": f"Uploaded {len(lines)} lines of logs and completed AI analysis"}
+    msg = f"Uploaded {len(lines)} lines of logs"
+    if source_code:
+        msg += " and source code"
+    msg += " and completed AI analysis"
+    
+    return {"incident": incidents_db[incident_id], "message": msg}
 
 
 @app.get("/api/scenarios")
